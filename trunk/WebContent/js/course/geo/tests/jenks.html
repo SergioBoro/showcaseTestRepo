@@ -1,0 +1,177 @@
+<html>
+<head>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<link rel="stylesheet" href="../../../dijit/themes/claro/claro.css"/>
+
+
+<script src="https://www.google.com/jsapi?key=ABQIAAAA-DMAtggvLwlIYlUJiASaAxRQnCpeV9jusWIeBw0POFqU6SItGxRWZhddpS8pIkVUd2fDQhzwPUWmMA"></script>
+
+
+<script>
+    djConfig = {
+        isDebug: true,
+		parseOnLoad: false,
+        modulePaths: {course: "../course", courseApp: "../course/geo/tests"},
+		gfxRenderer: "svg,silverlight",
+		mapEngine: "gfx"
+    };
+</script>
+<script src="util.js"></script>
+
+<script src="../../../dojo/dojo.js"></script>
+<script src="../../../course/geo/Map.js"></script>
+<script src="../../../course/geo/Feature.js"></script>
+<script src="../../../course/geo/FeatureContainer.js"></script>
+<script src="../../../course/geo/Placemark.js"></script>
+<script src="../../../course/geo/styling.js"></script>
+<script src="../../../course/geo/control/Magnify.js"></script>
+<script src="../../../course/geo/control/Highlight.js"></script>
+
+<script src="../../../course/geo/gfx/Engine.js"></script>
+
+<script src="../../../course/geo/util/jenks.js"></script>
+
+
+<script src="../../../course/geo/ge/Engine.js"></script>
+<script src="../../../course/geo/ge/Placemark.js"></script>
+
+
+
+<script>
+
+if (djConfig.mapEngine=="ge") dojo.require("course.geo.ge.Engine");
+
+dojo.require("dijit.form.CheckBox");
+dojo.require("dijit.form.Select");
+
+dojo.require("course.geo.control.Magnify");
+dojo.require("course.geo.control.Highlight");
+dojo.require("course.geo.control.Tooltip");
+
+if (djConfig.mapEngine=="ge") dojo.require("courseApp.data.russia_geometriesEpsg4326");
+else dojo.require("courseApp.data.russia_geometries");
+
+dojo.require("courseApp.data.russia_features");
+
+dojo.require("course.geo.util.jenks");
+
+var map;
+var style = {
+	id: "populationDensity",
+	styleClass: "populationDensity",
+	stroke: "black",
+	strokeWidth: 1,
+	styleFunction: {func: "course.geo.util.jenks.generateStyle", options: {numClasses: 7, colorSchemeName: "Reds", attr: "indicator1"}}
+}
+
+var setColorScheme = function(colorSchemeName, numClasses) {
+	var options = style.styleFunction.options;
+	if (colorSchemeName) {
+		options.colorSchemeName = colorSchemeName;
+		dojo.attr("schemeId", "innerHTML", colorSchemeName);
+	}
+	if (numClasses) {
+		options.numClasses = numClasses;
+		options.recalculateBreaks = true;
+	}
+	
+	// show colors from the selected scheme
+	var html="";
+	var colors = course.geo.util.colorbrewer.schemes["seq"][options.numClasses][options.colorSchemeName].colors;
+	dojo.forEach(colors, function(color){
+		html += "<span style='background-color:"+ color +"'>&nbsp;&nbsp;&nbsp;&nbsp;</span>"+color+"<br>";
+	});
+	dojo.attr("selectedSchemeColors", "innerHTML", html);
+	
+	course.geo.styling.getStyleById("populationDensity").set(style);
+}
+
+var firstRun = true;
+var createColorSchemeGui = function(numClasses) {
+	var rules = style.rules;
+	var schemes = course.geo.util.colorbrewer.schemes["seq"][numClasses];
+	var container = dojo.byId("colorSchemes");
+	for(var schemeName in schemes) {
+		if (firstRun) {
+			// add radio button
+			dojo.place(new dijit.form.RadioButton({
+				id: schemeName,
+				name: "colorbrewer",
+				value: schemeName,
+				onChange: function(value) {
+					if (value!==false) setColorScheme(this.id, null);
+				}
+			}).domNode,container);
+			dojo.place("<span id='colors"+ schemeName +"'></span><br>", container);
+		}
+		
+		// add colors
+		var html = "";
+		dojo.forEach(schemes[schemeName].colors, function(color){
+			html += "<span style='background-color:"+ color +"'>&nbsp;&nbsp;&nbsp;&nbsp;</span>";
+		});
+		dojo.attr("colors"+schemeName, "innerHTML", html);
+	}
+	firstRun = false;
+}
+
+var features = [
+	{
+		styleClass: "populationDensity",
+		features: courseApp.russiaFeatures
+	}
+]
+
+var addOnLoad = function() {
+
+    map = new course.geo.Map("map", {
+		geometries: courseApp.russiaGeometries,
+		features: features,
+		style: style
+	});
+	map.ready(function(){
+		//new course.geo.control.Magnify(map);
+		//new course.geo.control.Highlight(map);
+		// create <number of classes> dijit.form.Select
+		var numClasses = new dijit.form.Select({options:[
+			{value:"3",label:3}, {value:"4",label:4}, {value:"5",label:5}, {value:"6",label:6}, {value:"7",label:7,selected:true}, {value:"8",label:8}, {value:"9",label:9}
+		]}, "numClasses");
+		numClasses.watch("value", function(attr, oldValue, newValue){
+			createColorSchemeGui(newValue);
+			setColorScheme(null, newValue);
+		})
+		createColorSchemeGui(7);
+		dijit.byId("Oranges").set("checked", true);
+	});
+}
+
+dojo.addOnLoad(addOnLoad);
+</script>
+
+</head>
+
+<body class="claro">
+<table>
+	<tr>
+		<td><div id="map" style="width:800px;height:400px;"></div></td>
+		<td>
+			Number of classes: <div id="numClasses"></div><br>
+			<div id="colorSchemes" style="overflow:auto; height:400px;"></div>
+		</td>
+	</tr>
+	<tr>
+		<td style="vertical-align:top;">
+			Color schemes from <a href="http://colorbrewer2.org/">www.ColorBrewer2.org</a> by Cynthia A. Brewer, Geography, Pennsylvania State University.<br>
+			Licensed under the Apache License, Version 2.0.
+		</td>
+		<td>
+			Selected scheme:<br>
+			id:<span id="schemeId"></span><br>
+			<div id="selectedSchemeColors"></div>
+		</td>
+	</tr>
+</table>
+
+</body>
+</html>

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:include schemaLocation="specialTypes.xsd"/>
+    <xs:simpleType name="showInMode">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="PANEL"/>
+            <xs:enumeration value="MODAL_WINDOW"/>
+            <xs:enumeration value="BROWSER_TAB"/>
+        </xs:restriction>
+    </xs:simpleType>
+        
+    <xs:element name="action">
+        <xs:complexType>
+            <xs:all>
+                <xs:element name="navigator" minOccurs="0">
+                    <xs:complexType>
+                        <xs:attribute name="element" type="notNullType"/>
+                        <xs:attribute name="refresh" type="xs:boolean"/>
+                        <xs:assert test="(count(@element)=1 or count(@refresh)=1)"/>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="datapanel" minOccurs="0">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="element" maxOccurs="unbounded" minOccurs="0">
+                                <xs:complexType>
+                                    <xs:attribute name="id" type="notNullType" use="required"/>                          
+                                    <xs:attribute name="add_context" type="notNullType" use="required"/>
+                                    <xs:attribute name="refresh_context_only" type="xs:boolean"/>
+                                    <xs:attribute name="skip_refresh_context_only" type="xs:boolean"/>
+                                    <xs:attribute name="keep_user_settings" type="xs:boolean"/>
+                                </xs:complexType>                                
+                            </xs:element>
+                        </xs:sequence>
+                        <xs:attribute name="type" type="xmlType" use="required"/>                          
+                        <xs:attribute name="tab" type="notNullType"/>
+                        <xs:attribute name="main_context" type="xs:string" use="required"/>
+                    </xs:complexType>
+                    <xs:unique name="elementId">
+                        <xs:selector xpath="element"/>
+                        <xs:field xpath="@id"/>
+                    </xs:unique>
+                </xs:element>
+                <xs:element name="modalwindow" minOccurs="0">
+                    <xs:complexType>
+                        <xs:attribute name="caption" type="xs:string"/>
+                        <xs:attribute name="width" type="xs:integer"/>
+						<xs:attribute name="height" type="xs:integer"/>
+						<xs:attribute name="show_close_bottom_button" type="xs:boolean"/>
+                    </xs:complexType>
+                </xs:element>                
+            </xs:all>
+            <xs:attribute name="show_in" type="showInMode"/>
+            <xs:attribute name="keep_user_settings" type="xs:boolean"/>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

@@ -1,0 +1,126 @@
+<html>
+<head>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<link rel="stylesheet" href="../../../dijit/themes/claro/claro.css"/>
+
+<script src="https://www.google.com/jsapi?key=ABQIAAAA-DMAtggvLwlIYlUJiASaAxRQnCpeV9jusWIeBw0POFqU6SItGxRWZhddpS8pIkVUd2fDQhzwPUWmMA"></script>
+
+<script>
+    djConfig = {
+        isDebug: true,
+		parseOnLoad: false,
+        modulePaths: {course: "../course", courseApp: "../course/geo/tests"},
+		gfxRenderer: "svg,silverlight",
+		mapEngine: "gfx"
+    };
+</script>
+<script src="util.js"></script>
+
+<script src="../../../dojo/dojo.js"></script>
+<script src="../../../course/geo/Map.js"></script>
+<script src="../../../course/geo/Feature.js"></script>
+<script src="../../../course/geo/FeatureContainer.js"></script>
+<script src="../../../course/geo/Placemark.js"></script>
+<script src="../../../course/geo/Style.js"></script>
+<script src="../../../course/geo/control/Magnify.js"></script>
+<script src="../../../course/geo/control/Highlight.js"></script>
+<script src="../../../course/geo/control/Tooltip.js"></script>
+
+<script>
+if (djConfig.mapEngine=="ge") dojo.require("course.geo.ge.Engine");
+
+dojo.require("dijit.form.Button");
+dojo.require("course.geo.control.Magnify");
+dojo.require("course.geo.control.Highlight");
+dojo.require("course.geo.control.Tooltip");
+
+if (djConfig.mapEngine=="ge") dojo.require("courseApp.data.russia_geometriesEpsg4326");
+else dojo.require("courseApp.data.russia_geometries");
+
+dojo.require("courseApp.data.russia_features");
+
+
+var styles = [
+	{
+		id: "RU-AD",
+		stroke: {color:"green", width: .5},
+		fill: "yellow"
+	},
+	{
+		id: "RU-AMU",
+		stroke: {color:"blue", width: 2},
+		fill: "lime"
+	},
+	{
+		id: "RU-ARK",
+		stroke: {color:"red", width: 3},
+		fill: "purple"
+	}
+];
+
+
+var map, magnify, highlight, tooltip;
+
+var addOnLoad = function() {
+	
+    new dijit.form.ToggleButton({
+		checked: true,
+		onChange: function(value){
+			if (value) magnify.connect();
+			else magnify.disconnect();
+		},
+		iconClass: "dijitRadioIcon"
+	}, "magnify");
+	
+    new dijit.form.ToggleButton({
+		checked: true,
+		onChange: function(value){
+			if (value) highlight.connect();
+			else highlight.disconnect();
+		},
+		iconClass: "dijitRadioIcon"
+	}, "highlight");
+	
+    new dijit.form.ToggleButton({
+		checked: true,
+		onChange: function(value){
+			if (value) tooltip.connect();
+			else tooltip.disconnect();
+		},
+		iconClass: "dijitRadioIcon"
+	}, "tooltip");
+	
+
+    map = new course.geo.Map("map", {
+		engine: {type: djConfig.mapEngine},
+		geometries: courseApp.russiaGeometries,
+		styles: styles,
+		width: 800,
+		height: 400,
+		features: courseApp.russiaFeatures
+	});
+	map.ready(function(){
+		magnify = new course.geo.control.Magnify(map);
+		highlight = new course.geo.control.Highlight(map, {highlight: "orange"});
+		tooltip = new course.geo.control.Tooltip(map);
+	});
+}
+
+
+
+dojo.addOnLoad(addOnLoad);
+
+</script>
+
+</head>
+
+<body class="claro">
+
+<div id="magnify">Magnify</div>
+<div id="highlight">Highlight</div>
+<div id="tooltip">Tooltip</div>
+<div id="map" style="width:800px;height:400px;"></div>
+
+</body>
+</html>

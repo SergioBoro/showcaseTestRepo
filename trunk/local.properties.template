@@ -1,0 +1,5 @@
+servlet.cont.dir=c:/Program Files/Tomcat
+deploy.dir=${servlet.cont.dir}/webapps
+servlet.cont.lib.dir=${servlet.cont.dir}/lib
+gwt.dir=c:/Program Files/gwt
+junit.dir=c:/Program Files/junit

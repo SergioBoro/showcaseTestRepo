@@ -1,0 +1,1 @@
+svnversion.exe .. > ..\WebContent\WEB-INF\classes\build

@@ -1,0 +1,15 @@
+﻿# authentication system
+security.authserverurl = http://localhost:8180/AuthServer
+local.security.authserverurl = http://localhost:8180/AuthServer 
+# sql
+rdbms.connection.url = jdbc:sqlserver://CASTLE\\R2;databasename=CARTRADE
+rdbms.connection.username = sa
+rdbms.connection.password = F708420Dx
+navigator.proc.name = generationtree
+# general
+navigator.def.icon.name = group_icon_default.png
+copy.userdata.on.startup = false
+copy.userdata.dirs = js:css:html:resources:WEB-INF
+# dirs
+navigator.icons.dir.name = resources
+images.in.grid.dir = resources

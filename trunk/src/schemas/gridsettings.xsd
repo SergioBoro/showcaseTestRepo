@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:include schemaLocation="action.xsd"/>
+    
+    <xs:simpleType name="columnType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="IMAGE"/>
+            <xs:enumeration value="LINK"/>
+        </xs:restriction>
+    </xs:simpleType>    
+    
+    <xs:element name="gridsettings">
+        <xs:complexType>
+            <xs:all>
+                <xs:element ref="labels" minOccurs="0" maxOccurs="1"/>
+                <xs:element ref="columns" minOccurs="0" maxOccurs="1"/>
+                <xs:element ref="action" minOccurs="0" maxOccurs="1"/>
+                <xs:element ref="properties" minOccurs="1" maxOccurs="1"/>                
+            </xs:all>                       
+        </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="labels">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="header" minOccurs="0" maxOccurs="1"/>
+                <xs:element name="footer" minOccurs="0" maxOccurs="1"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>   
+    
+    <xs:element name="columns">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="col" maxOccurs="unbounded">
+                    <xs:complexType>
+                        <xs:attribute name="id" type="notNullType" use="required"/>
+                        <xs:attribute name="width" type="notNullType"/>
+                        <xs:attribute name="precision" type="xs:unsignedByte"/>
+                        <xs:attribute name="type" type="columnType"/>
+                    </xs:complexType>
+                </xs:element>               
+            </xs:sequence>
+        </xs:complexType>        
+        <xs:unique name="colName">
+            <xs:selector xpath="col"/>
+            <xs:field xpath="@id"/>
+        </xs:unique>
+    </xs:element> 
+       
+    <xs:element name="properties">
+        <xs:complexType>
+            <xs:attribute name="flip" type="xs:boolean" use="required"/>
+            <xs:attribute name="pagesize" type="xs:unsignedShort"/>
+            <xs:attribute name="autoSelectColumnId" type="notNullType"/>
+            <xs:attribute name="autoSelectRecordId" type="xs:unsignedInt"/>
+            <xs:attribute name="autoSelectRelativeRecord" type="xs:boolean" default="true"/>
+            <xs:attribute name="profile" type="notNullType"/>
+            <xs:attribute name="selectMode" type="rowOrCell"/>
+            <xs:attribute name="totalCount" type="xs:unsignedInt" use="required"/>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

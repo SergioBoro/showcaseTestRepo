@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:simpleType name="notNullType">
+        <xs:restriction base="xs:string">
+            <xs:minLength value="1"/>
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <xs:simpleType name="xslType">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="[A-Za-zА-Яа-я0-9_-]+\.xsl"/>
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <xs:simpleType name="typeElement">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="chart"/>
+            <xs:enumeration value="grid"/>
+            <xs:enumeration value="webtext"/>
+            <xs:enumeration value="geomap"/>
+            <xs:enumeration value="xforms"/>
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <xs:simpleType name="pictureType">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="[A-Za-zА-Яа-я0-9_-]+\.(png|jpg|jpeg|bmp|gif|tif)"/>
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <xs:simpleType name="xmlType">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="([A-Za-zА-Яа-я0-9_-]+\.xml)|current"/>            
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <xs:simpleType name="xsdType">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="([A-Za-zА-Яа-я0-9_-]+\.xsd)"/>            
+        </xs:restriction>
+    </xs:simpleType>    
+    
+    <xs:simpleType name="rowOrCell">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="row"/>
+            <xs:enumeration value="cell"/>
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <xs:simpleType name="legendPlace">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="left"/>
+            <xs:enumeration value="top"/>
+            <xs:enumeration value="right"/>
+            <xs:enumeration value="bottom"/>
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <xs:simpleType name="sizeType">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="[0-9]+(px|em|pt|mm)"></xs:pattern>
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <xs:simpleType name="colorType">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})|()"></xs:pattern>
+        </xs:restriction>
+    </xs:simpleType>
+    
+</xs:schema>

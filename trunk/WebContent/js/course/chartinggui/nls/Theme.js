@@ -1,0 +1,3 @@
+({
+    _themeSpan: "Chart theme:"
+})

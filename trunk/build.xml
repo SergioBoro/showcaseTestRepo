@@ -1,0 +1,204 @@
+<project name="Showcase" basedir="." default="build">
+	<property name="appname" value="${ant.project.name}" />
+	<property name="env" value="local" />
+
+	<property name="dist.dir" value="dist" />
+	<property name="extragwt.dir" value="extragwt" />
+	<property name="datagrid.dir" value="datagrid" />
+	<property name="src.dir" value="src" />
+	<property name="tmp.dir" value="tmp" />
+	<property name="war.dir" value="WebContent" />
+	<property name="war.file" value="${dist.dir}/${appname}.war" />
+	<property name="images.dir" value="${war.dir}/resources" />
+	<property name="webinf.dir" value="${war.dir}/WEB-INF" />
+	<property name="js.dir" value="${war.dir}/js" />
+	<property name="class.dir" value="${webinf.dir}/classes" />
+	<property name="lib.dir" value="${webinf.dir}/lib" />
+	<property name="gwt.compiled.dir" value="${war.dir}/app" />
+	<property name="userdata.dir" value="userdata" />
+	<property name="env.props" value="${env}.properties" />
+	<property name="gwt.src.root.dir" value="${src.dir}\ru\curs\showcase\app" />
+
+
+	<property file="${env.props}" />
+	<property file="${userdata.dir}/app.properties" />
+	<!--  нужно чтобы работало при отсутствии local.properties -->
+	<property name="servlet.cont.lib.dir" value="" />
+	<property name="gwt.dir" value="" />
+
+
+	<path id="master-classpath" description="Master CLASSPATH for this script">
+		<fileset dir="${lib.dir}">
+			<include name="*.jar" />
+		</fileset>
+		<fileset dir="${servlet.cont.lib.dir}">
+			<include name="*.jar" />
+		</fileset>
+		<fileset dir="${gwt.dir}">
+			<include name="*.jar" />
+		</fileset>
+		<fileset dir="${junit.dir}">
+			<include name="*.jar" />
+		</fileset>
+		<pathelement location="${webinf.dir}/classes/" />
+	</path>
+
+	<target name="info" description="Show wise configuration info">
+		<echo>Соединение с SQL Server "${rdbms.connection.url}" и развертывание на контейнере сервлетов "${servlet.cont.dir}"</echo>
+	</target>
+
+	<target name="init.local.files" description="Create local files">
+		<copy overwrite="no" verbose="true" file="local.properties.template" tofile="local.properties" />
+		<copy overwrite="no" verbose="true" file=".classpath.template" tofile=".classpath" />
+		<copy overwrite="no" verbose="true" file="${src.dir}/path.properties.template" tofile="${src.dir}/path.properties" />
+		<copy overwrite="no" verbose="true" file="${userdata.dir}/app.properties.template" tofile="${userdata.dir}/app.properties" />
+		<copy overwrite="no" verbose="true" file="${userdata.dir}/gridproperties/default.properties.template" tofile="${userdata.dir}/gridproperties/default.properties" />
+		<copy overwrite="no" verbose="true" file="${src.dir}/log4j.xml.template" tofile="${src.dir}/log4j.xml" />
+		<echo>Не забудьте указать правильные настройки в файлах local.properties, path.properties и app.properties, а также настроить classpath (Build path) с помощью Eclipse</echo>
+	</target>
+
+	<target name="init.dirs" depends="info" description="Create some base dirs">
+		<mkdir dir="${dist.dir}" />
+		<mkdir dir="${images.dir}" />
+		<mkdir dir="${class.dir}" />
+		<mkdir dir="${tmp.dir}" />
+		<mkdir dir="${js.dir}" />
+	</target>
+
+	<target name="compile" depends="init.dirs" description="Compiles .java files to WAR directory">
+		<javac srcdir="${src.dir}; datagrid; extragwt" destdir="${class.dir}" debug="true" failonerror="true" classpathref="master-classpath" excludes="*/*Test.java" />
+		<exec resolveexecutable="true" executable="svnver\svnversion.exe" output="WebContent\WEB-INF\classes\build" dir="." description="Write build number to file" />
+	</target>
+
+	<target name="build" depends="compile">
+		<copy todir="${class.dir}">
+			<fileset dir="${src.dir}">
+				<include name="**/*" />
+				<exclude name="**/*.java" />
+				<exclude name="**/*.template" />
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="build.with.gwt" depends="build">
+		<echo>Compiling GWT Javascript</echo>
+		<java classname="com.google.gwt.dev.Compiler" fork="true">
+			<classpath>
+				<!--  порядок важен! -->
+				<pathelement path="${src.dir}" />
+				<pathelement path="${datagrid.dir}" />
+				<pathelement path="${extragwt.dir}" />
+				<pathelement path="${lib.dir}/gquery-dnd-bundle-1.0.2.jar" />
+				<pathelement path="${gwt.dir}/gwt-dev.jar" />
+				<pathelement path="${gwt.dir}/gwt-user.jar" />
+			</classpath>
+			<classpath refid="master-classpath" />
+			<arg line="-war ${war.dir}" />
+			<arg line="ru.curs.showcase.app.App" />
+		</java>
+	</target>
+
+	<target name="clean" description="Deletes files from war, tmp and dist directories">
+		<delete includeemptydirs="true" failonerror="false">
+			<fileset dir="${gwt.compiled.dir}">
+			</fileset>
+		</delete>
+		<delete includeemptydirs="true" failonerror="false">
+			<fileset dir="${dist.dir}">
+				<exclude name="js/*.*" />
+			</fileset>
+		</delete>
+		<delete includeemptydirs="true" failonerror="false">
+			<fileset dir="${tmp.dir}">
+			</fileset>
+		</delete>
+		<delete includeemptydirs="true" failonerror="false">
+			<fileset dir="${class.dir}">
+			</fileset>
+		</delete>
+	</target>
+
+	<target name="rebuild" depends="clean, build" />
+
+	<target name="dist" description="Assembles WAR file">
+		<echo>Prepare for GWT build for all browsers</echo>
+		<copy tofile="${tmp.dir}\App.gwt.xml.re" file="${gwt.src.root.dir}\App.gwt.xml" overwrite="true" />
+		<copy tofile="${gwt.src.root.dir}\App.gwt.xml" file="${gwt.src.root.dir}\App.gwt.xml.template" overwrite="true" />
+		<antcall target="build.with.gwt" />
+		<echo>Copy sources to war</echo>
+		<copy todir="${webinf.dir}/src/core">
+			<fileset dir="${src.dir}">
+				<include name="**/*.java" />
+			</fileset>
+		</copy>
+		<copy todir="${webinf.dir}/src/${extragwt.dir}">
+			<fileset dir="${extragwt.dir}">
+				<include name="**/*.java" />
+			</fileset>
+		</copy>
+		<copy todir="${webinf.dir}/src/${datagrid.dir}">
+			<fileset dir="${datagrid.dir}">
+				<include name="**/*.java" />
+			</fileset>
+		</copy>
+		<echo>Making war not love</echo>
+		<war destfile="${war.file}">
+			<fileset dir="${war.dir}">
+				<include name="**/*" />
+				<exclude name="**/*mock*.jar" />
+				<exclude name="**/*.template" />
+				<exclude name="debug.jsp" />
+			</fileset>
+		</war>
+		<echo>Clearing after make war</echo>
+		<delete dir="${webinf.dir}/${src.dir}" failonerror="false" />
+		<copy tofile="${gwt.src.root.dir}\App.gwt.xml" file="${tmp.dir}\App.gwt.xml.re" overwrite="true" />
+	</target>
+
+	<target name="dist.with.userdata" depends="dist" description="Assembles WAR file with test data">
+		<copy todir="${webinf.dir}\${userdata.dir}">
+			<fileset dir="${userdata.dir}">
+				<include name="**/*" />
+			</fileset>
+		</copy>
+		<copy file="${src.dir}/path.properties.template" overwrite="true" tofile="${class.dir}/path.properties" />
+		<antcall target="dist" />
+		<delete dir="${webinf.dir}/${userdata.dir}" failonerror="false" />
+		<copy file="${src.dir}/path.properties" overwrite="true" tofile="${class.dir}/path.properties" />
+	</target>
+
+
+	<target name="deploy.with.userdata" depends="dist.with.userdata" description="Deploys WAR file with test data to ${deploy.dir}">
+		<delete failonerror="true" dir="${deploy.dir}/${appname}" />
+		<copy file="${war.file}" todir="${deploy.dir}" />
+	</target>
+
+	<target name="test" depends="compile">
+		<junit printsummary="true" showoutput="yes" filtertrace="false">
+			<classpath refid="master-classpath" />
+			<batchtest fork="yes" todir="tmp">
+				<formatter type="plain" />
+				<fileset dir="${class.dir}">
+					<include name="**/*Test.class" />
+					<exclude name="**/Abstract*.class" />
+				</fileset>
+			</batchtest>
+		</junit>
+	</target>
+
+	<target name="init.dojo" depends="info">
+		<echo>Deleting old dojo files</echo>
+		<delete failonerror="false" dir="${js.dir}/dojo" />
+		<delete failonerror="false" dir="${js.dir}/dijit" />
+		<delete failonerror="false" dir="${js.dir}/dojox" />
+		<echo>Unpack new dojo files</echo>
+		<unzip src="${dist.dir}/js/dojo.zip" dest="${js.dir}">
+		</unzip>
+		<unzip src="${dist.dir}/js/dijit.zip" dest="${js.dir}">
+		</unzip>
+		<unzip src="${dist.dir}/js/dojox.zip" dest="${js.dir}">
+		</unzip>
+	</target>
+
+</project>
+

@@ -1,0 +1,176 @@
+<html>
+<head>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<link rel="stylesheet" href="../../../dijit/themes/claro/claro.css"/>
+
+<script>
+    djConfig = {
+        isDebug: true,
+		parseOnLoad: false,
+        modulePaths: {course: "../course", courseApp: "../course/geo/tests"},
+		gfxRenderer: "svg,silverlight"
+    };
+</script>
+<script src="util.js"></script>
+
+<script src="../../../dojo/dojo.js"></script>
+<script src="../../../course/geo/Map.js"></script>
+<script src="../../../course/geo/Feature.js"></script>
+<script src="../../../course/geo/FeatureContainer.js"></script>
+<script src="../../../course/geo/Placemark.js"></script>
+<script src="../../../course/geo/Style.js"></script>
+
+<script src="../../../course/geo/gfx/Map.js"></script>
+
+<script>
+dojo.require("courseApp.data.russia_geometries");
+
+
+var styles = [
+	{
+		id: "RU-AD",
+		stroke: {color:"green", width: .5},
+		fill: "yellow"
+	},
+	{
+		id: "RU-AMU",
+		stroke: {color:"blue", width: 2},
+		fill: "lime"
+	},
+	{
+		id: "RU-ARK",
+		stroke: {color:"red", width: 3},
+		//fill: "purple"
+		fill: {type: "pattern", x: 0, y: 0, width: 212, height: 151, src:"resources/pattern.jpg"}
+	}
+];
+
+var features = [
+	{
+		features: [
+			{
+				geometry: {type:"Point",coordinates: [78.6486,52.99031]},
+				tooltip: "Города - Славгород (1107) (52.99031 - 78.6486)",
+				id: "1107",
+				name: "Славгород"
+			},
+			{
+				geometry: {type:"Point",coordinates: [44.009193,56.329918]},
+				properties: {ind3: 10.0, ind4: 100.0},
+				tooltip: "Нижний Новгород - город с показателями",
+				id: "1849",
+				name: "Нижний Новгород"
+			},
+			{
+				geometry: {type:"Point",coordinates: [31.26912,58.54497]},
+				tooltip: "Города - Великий Новгород (2532) (58.54497 - 31.26912)",
+				id: "2532",
+				name: "Великий Новгород"
+			},
+			{
+				geometry: {type:"Point",coordinates: [36.60921,50.59661]},
+				tooltip: "Города - Белгород (3674) (50.59661 - 36.60921)",
+				id: "3674",
+				name: "Белгород"
+			},
+			{
+				geometry: {type:"Point",coordinates: [36.86614,55.73133]},
+				tooltip: "Города - Звенигород (3742) (55.73133 - 36.86614)",
+				id: "3742",
+				name: "Звенигород"
+			},
+			{
+				geometry: {type:"Point",coordinates: [22.29396,48.62403]},
+				tooltip: "Города - Ужгород (4826) (48.62403 - 22.29396)",
+				id: "4826",
+				name: "Ужгород"
+			}
+		],
+		id: "l1",
+		name: "Города"
+	},
+	{
+		features: [
+			{
+				geometryId: "RU-AD",
+				tooltip: "Регионы - Республика Адыгея (1)",
+				styleId: "RU-AD",
+				id: "1",
+				name: "Республика Адыгея"
+			},
+			{
+				geometryId: "RU-AL",
+				properties: {ind1: 1000.0,ind2: 10.0},
+				tooltip: "Алтай - регион с показателями",
+				style: {fill: "#FAEC7B"},
+				id: "2",
+				name: "Республика Алтай"
+			},
+			{
+				geometryId: "RU-ALT",
+				tooltip: "Регионы - Алтайский край (3)",
+				styleId: "RU-ALT",
+				id: "3",
+				name: "Алтайский край"
+			},
+			{
+				geometryId: "RU-AMU",
+				properties: {},
+				tooltip: "Регионы - Амурская область (4)",
+				styleId: "RU-AMU",
+				id: "4",
+				name: "Амурская область"
+			},
+			{
+				geometryId: "RU-ARK",
+				properties: {},
+				tooltip: "Регионы - Архангельская область (5)",
+				styleId: "RU-ARK",
+				id: "5",
+				name: "Архангельская область"
+			},
+			{
+				geometryId: "RU-KYA",
+				properties: {},
+				tooltip: "Регионы - Архангельская область (5)",
+				styleId: "RU-ARK",
+				id: "RU-KYA",
+				name: "Архангельская область"
+			}
+		],
+		id: "l2",
+		name: "Регионы"
+	}
+];
+
+var options = {
+	geometries: courseApp.russiaGeometries,
+	styles: styles,
+	features: features
+}
+
+var map;
+addOnLoad = function() {	
+
+
+    map = new course.geo.Map("map", options);
+	map.ready();
+
+}
+
+
+
+dojo.addOnLoad(addOnLoad);
+
+</script>
+
+</head>
+
+<body class="claro">
+
+<div id="map" style="width:800px;height:400px;"></div>
+<div id="chartLegend"></div>
+
+</body>
+</html>

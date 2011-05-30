@@ -1,0 +1,163 @@
+<html>
+<head>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<link rel="stylesheet" href="../../../dijit/themes/claro/claro.css"/>
+
+
+<script src="https://www.google.com/jsapi?key=ABQIAAAA-DMAtggvLwlIYlUJiASaAxRQnCpeV9jusWIeBw0POFqU6SItGxRWZhddpS8pIkVUd2fDQhzwPUWmMA"></script>
+
+
+<script>
+    djConfig = {
+        isDebug: true,
+		parseOnLoad: false,
+        modulePaths: {course: "../course", courseApp: "../course/geo/tests"},
+		gfxRenderer: "svg,silverlight",
+		mapEngine: "gfx"
+    };
+</script>
+<script src="util.js"></script>
+<script src="../../../dojo/dojo.js"></script>
+
+<script>
+if (djConfig.mapEngine=="ge") dojo.require("course.geo.ge.Engine");
+else dojo.require("course.geo.gfx.Engine");
+
+dojo.require("dijit.form.Button");
+DebugUtil.timer.start("loading");
+dojo.require("course.geo.Map");
+
+dojo.require("course.geo.control.Highlight");
+dojo.require("course.geo.control.Tooltip");
+dojo.require("course.geo.control.Navigation");
+
+dojo.require("courseApp.data.berlin_buildings");
+dojo.require("courseApp.data.berlin_lines");
+
+
+dojo.require("course.geo.util.proj4js");
+dojo.require("course.geo.util.proj4js.merc");
+dojo.require("course.geo.projection");
+
+
+var map, magnify, highlight, tooltip;
+
+var style = [
+	{
+		styleClass: "buildings",
+		fill: "#bca9a9",
+		strokeWidth: 0.001
+	},
+	{
+		styleClass: "lines",
+		stroke: "#bbb",
+		strokeWidth: 1
+	},
+	{
+		styleClass: "lines",
+		filter: "this.highway=='primary'",
+		stroke: "#8d4346",
+		strokeWidth: 3
+	},
+	{
+		styleClass: "lines",
+		filter: "this.highway=='secondary'",
+		stroke: "#a37b48",
+		strokeWidth: 2.5
+	},
+	{
+		styleClass: "lines",
+		filter: "this.highway=='tertiary'",
+		stroke: "#ffffb3",
+		strokeWidth: 1.8
+	},
+	{
+		styleClass: "lines",
+		filter: "this.railway",
+		stroke: "#000",
+		strokeWidth: 0.5
+	}
+]
+
+var features = [
+	{
+		styleClass: "buildings",
+		features: courseApp.data.berlinBuildings
+	},
+	{
+		styleClass: "lines",
+		features: courseApp.data.berlinLines
+	}
+];
+
+DebugUtil.timer.end("loading");
+
+var highlight, magnify, tooltip;
+var addOnLoad = function() {
+	/*
+    new dijit.form.ToggleButton({
+		checked: true,
+		onChange: function(value){
+			if (value) magnify.connect();
+			else magnify.disconnect();
+		},
+		iconClass: "dijitRadioIcon"
+	}, "magnify");
+	
+    new dijit.form.ToggleButton({
+		checked: true,
+		onChange: function(value){
+			if (value) highlight.connect();
+			else highlight.disconnect();
+		},
+		iconClass: "dijitRadioIcon"
+	}, "highlight");
+	*/
+    new dijit.form.ToggleButton({
+		checked: true,
+		onChange: function(value){
+			if (value) tooltip.connect();
+			else tooltip.disconnect();
+		},
+		iconClass: "dijitRadioIcon"
+	}, "tooltip");
+
+	DebugUtil.timer.start("render");
+    map = new course.geo.Map("map", {
+		geometryProjection: "EPSG:4326",
+		currentProjection: "EPSG:3785",
+		engine: {type: djConfig.mapEngine},
+		style: style,
+		features: features,
+		attributesInFeature: false
+	});
+	map.ready(function(){
+		DebugUtil.timer.end("render");
+		DebugUtil.timer.start("events-init");
+		new course.geo.control.Navigation(map);
+		highlight = new course.geo.control.Highlight(map);
+		tooltip = new course.geo.control.Tooltip(map);
+		DebugUtil.timer.end("events-init");
+	});
+}
+
+
+
+dojo.addOnLoad(addOnLoad);
+
+</script>
+
+</head>
+
+<body class="claro">
+
+<!--
+<div id="magnify">Magnify</div>
+<div id="highlight">Highlight</div>
+-->
+<div id="tooltip">Tooltip</div>
+<div id="map" style="width:600px;height:600px;"></div>
+Map data (c) <a href="http://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>.
+</body>
+</html>
