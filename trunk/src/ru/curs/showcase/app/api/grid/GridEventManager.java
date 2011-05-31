@@ -45,7 +45,25 @@ public class GridEventManager extends EventManager {
 	 * @return - действие.
 	 */
 	public Action getSelectionActionForDependentElements(final DataSelection selection) {
-		Action result = new Action(DataPanelActionType.RELOAD_ELEMENTS);
+		Action result = prepareFilterAction();
+		fillFilterActionBySelection(selection, result);
+		finishFilterAction(result);
+		return result;
+	}
+
+	private void finishFilterAction(final Action result) {
+		Iterator<DataPanelElementLink> literator =
+			result.getDataPanelLink().getElementLinks().iterator();
+		while (literator.hasNext()) {
+			DataPanelElementLink newLink = literator.next();
+			newLink.getContext().finishFilter();
+			if (result.getDataPanelLink().getContext().getFilter() == null) {
+				result.getDataPanelLink().getContext().setFilter(newLink.getContext().getFilter());
+			}
+		}
+	}
+
+	private void fillFilterActionBySelection(final DataSelection selection, final Action result) {
 		Iterator<Record> iterator = selection.getSelectedRecords().iterator();
 		while (iterator.hasNext()) {
 			Record record = iterator.next();
@@ -55,26 +73,29 @@ public class GridEventManager extends EventManager {
 					event.getAction().getDataPanelLink().getElementLinks().iterator();
 				while (literator.hasNext()) {
 					DataPanelElementLink curLink = literator.next();
-					DataPanelElementLink newLink =
+					DataPanelElementLink resLink =
 						result.getDataPanelLink().getElementLinkById(curLink.getId());
-					if (newLink == null) {
-						newLink = curLink.gwtClone();
-						newLink.getContext().setAdditional(null);
-						newLink.getContext().setFilter("");
-						result.getDataPanelLink().getElementLinks().add(newLink);
-					}
-					newLink.getContext().addFilterLine(curLink.getContext());
+					resLink.getContext().addFilterLine(curLink.getContext());
 				}
 			}
 		}
+	}
 
-		Iterator<DataPanelElementLink> literator =
-			result.getDataPanelLink().getElementLinks().iterator();
-		while (literator.hasNext()) {
-			DataPanelElementLink newLink = literator.next();
-			newLink.getContext().finishFilter();
-			if (result.getDataPanelLink().getContext().getFilter() == null) {
-				result.getDataPanelLink().getContext().setFilter(newLink.getContext().getFilter());
+	private Action prepareFilterAction() {
+		Action result = new Action(DataPanelActionType.RELOAD_ELEMENTS);
+		Iterator<Event> iterator = getEvents().iterator();
+		while (iterator.hasNext()) {
+			Event event = iterator.next();
+			if (event.getInteractionType() == InteractionType.SELECTION) {
+				Iterator<DataPanelElementLink> literator =
+					event.getAction().getDataPanelLink().getElementLinks().iterator();
+				while (literator.hasNext()) {
+					DataPanelElementLink curLink = literator.next();
+					DataPanelElementLink newLink = curLink.gwtClone();
+					newLink.getContext().setAdditional(null);
+					newLink.getContext().setFilter("");
+					result.getDataPanelLink().getElementLinks().add(newLink);
+				}
 			}
 		}
 		return result;
