@@ -1,4 +1,4 @@
-<project name="Showcase" basedir="." default="build">
+<project name="Showcase_v.1.5.5" basedir="." default="build">
 	<property name="appname" value="${ant.project.name}" />
 	<property name="env" value="local" />
 
