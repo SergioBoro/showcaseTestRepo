@@ -122,8 +122,16 @@
     <servlet-name>XFormsTransformationServlet</servlet-name>
     <servlet-class>ru.curs.showcase.app.server.XFormsTransformationServlet</servlet-class>
   </servlet>
+  <servlet>
+    <servlet-name>GeoCheckServlet</servlet-name>
+    <servlet-class>ru.curs.showcase.app.server.GeoCheckServlet</servlet-class>
+  </servlet>  
   <servlet-mapping>
     <servlet-name>XFormsTransformationServlet</servlet-name>
     <url-pattern>/secured/xslttransformer</url-pattern>
   </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>GeoCheckServlet</servlet-name>
+    <url-pattern>/secured/geoCheck</url-pattern>
+  </servlet-mapping>  
 </web-app>
